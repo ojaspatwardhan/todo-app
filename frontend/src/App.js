@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
+import Modal from './components/Modal';
 
 const toDoItems = [
   {
@@ -28,10 +29,39 @@ class App extends Component {
     super(props);
 
     this.state = {
+      modal: false,
       viewCompleted: false,
+      activeItem: {
+        title: "",
+        description: "",
+        completed: false
+      },
       toDoList: toDoItems
     };
   }
+
+  toggle = () => {
+    this.setState({
+      modal: !this.state.modal
+    });
+  };
+
+  handleSubmit = (item) => {
+    this.toggle();
+    alert("Save" + JSON.stringify(item));
+  }
+
+  handleDelete = (item) => {
+    alert("Delete" + JSON.stringify(item));
+  }
+
+  createItem = () => {
+    const item = {title: "", description: "", completed: false};
+    this.setState({
+      activeItem: item,
+      modal: !this.state.modal
+    });
+  };
 
   displayCompletedItems = status => {
     if(status) {
@@ -74,7 +104,7 @@ class App extends Component {
           </span>
           <span>
             <button type="button" className="btn btn-md btn-outline-info mr-2">Edit</button>
-            <button type="button" className="btn btn-md btn-outline-danger">Remove</button>
+            <button type="button" className="btn btn-md btn-outline-danger" onClick={() => this.handleDelete(item)}>Remove</button>
           </span>
         </li>
     ));
@@ -92,7 +122,7 @@ class App extends Component {
           <div className="col-6 mx-auto p-0">
             <div className="card p-3">
               <div className="">
-                <button type="button" className="btn btn-md btn-outline-dark">Add task</button>
+                <button type="button" className="btn btn-md btn-outline-dark" onClick={this.createItem}>Add task</button>
               </div>
               {this.renderTabList()}
               <ul className="list-group list-group-flush">
@@ -101,6 +131,12 @@ class App extends Component {
             </div>
           </div>
         </div>
+        {this.state.modal ? (
+            <Modal activeItem={this.state.activeItem}
+                   toggle={this.state.toggle}
+                   onSave={this.handleSubmit}
+            />
+        ) : null}
       </div>
     );
   }
