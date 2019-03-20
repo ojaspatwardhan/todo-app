@@ -169,7 +169,7 @@ class App extends Component {
         </div>
         {this.state.modal ? (
             <Modal activeItem={this.state.activeItem}
-                   toggle={this.state.toggle}
+                   toggle={this.toggle}
                    onSave={this.handleSubmit}
             />
         ) : null}
