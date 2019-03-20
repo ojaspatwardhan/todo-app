@@ -2,27 +2,7 @@ import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
 import Modal from './components/Modal';
-
-const toDoItems = [
-  {
-    id: 1,
-    title: "Task 1",
-    description: "Learn Django",
-    completed: false
-  },
-  {
-    id: 2,
-    title: "Task 2",
-    description: "Learn React",
-    completed: false
-  },
-  {
-    id: 3,
-    title: "Task 3",
-    description: "Implement Both.",
-    completed: false
-  }
-];
+import axios from 'axios';
 
 class App extends Component {
   constructor(props) {
@@ -36,25 +16,68 @@ class App extends Component {
         description: "",
         completed: false
       },
-      toDoList: toDoItems
+      toDoList: []
     };
   }
 
+
+  /*
+   * Fetching the data from database on componentDidMount.
+   */
+  componentDidMount() {
+    this.refreshList();
+  }
+
+  /*
+   * Method to fetch data from database.
+   */
+  refreshList = () => {
+    axios.get("/api/todos").then(response => this.setState({
+      toDoList: response.data
+    })
+    ).catch(err => console.log(err));
+  };
+
+  /*
+   * Method to toggle modal.
+   */
   toggle = () => {
     this.setState({
       modal: !this.state.modal
     });
   };
 
+  /*
+   * Method to post data to database.
+   */
   handleSubmit = (item) => {
-    this.toggle();
-    alert("Save" + JSON.stringify(item));
-  }
+    if(item.id) {
+      axios.put(`/api/todos/${item.id}/`, item).then(response => {
+        console.log(response.data);
+        this.toggle();
+        this.refreshList();
+      });
+    } else {
+      axios.post("/api/todos/", item).then(response => {
+      console.log(response.data);
+      this.toggle();
+      this.refreshList();
+    }).catch(err => console.log(err));
+    }
+  };
 
+  /*
+   * Method to delete data from database.
+   */
   handleDelete = (item) => {
-    alert("Delete" + JSON.stringify(item));
-  }
+    axios.delete(`/api/todos/${item.id}`).then(response => {
+      this.refreshList();
+    }).catch(err => console.log(err));
+  };
 
+  /*
+   * Method to set item.
+   */
   createItem = () => {
     const item = {title: "", description: "", completed: false};
     this.setState({
@@ -63,6 +86,19 @@ class App extends Component {
     });
   };
 
+  /*
+   * Method to edit item.
+   */
+  editItem = (item) => {
+    this.setState({
+      activeItem: item,
+      modal: !this.state.modal
+    });
+  };
+
+  /*
+   * Method to display list of completed items.
+   */
   displayCompletedItems = status => {
     if(status) {
       return this.setState({
@@ -103,7 +139,7 @@ class App extends Component {
             {item.title}
           </span>
           <span>
-            <button type="button" className="btn btn-md btn-outline-info mr-2">Edit</button>
+            <button type="button" className="btn btn-md btn-outline-info mr-2" onClick={() => this.editItem(item)}>Edit</button>
             <button type="button" className="btn btn-md btn-outline-danger" onClick={() => this.handleDelete(item)}>Remove</button>
           </span>
         </li>

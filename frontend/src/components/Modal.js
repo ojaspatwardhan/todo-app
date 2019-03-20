@@ -55,6 +55,7 @@ export default class AddTaskModal extends React.Component {
                             </Label>
                             <Input type="text"
                                    name="description"
+                                   value={this.state.activeItem.description}
                                    checked={this.state.activeItem.completed}
                                    onChange={this.handleChange}
                             />
